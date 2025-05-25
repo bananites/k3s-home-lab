@@ -1,0 +1,103 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud
+  namespace: nextcloud
+  labels:
+    app: nextcloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextcloud
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+    spec:
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chmod 0770 /mnt/data && chown 33:33 /mnt/data"]
+          volumeMounts:
+            - name: nextcloud-storage-data
+              mountPath: /mnt/data
+
+      containers:
+        - image: nextcloud:25-apache
+          name: nextcloud
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: REDIS_HOST
+              value: redis
+            - name: POSTGRES_HOST
+              value: postgresql
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_DB
+                  name: nextcloud-secrets
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_USER
+                  name: nextcloud-secrets
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: nextcloud-secrets
+            - name: NEXTCLOUD_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  key: NEXTCLOUD_ADMIN_USER
+                  name: nextcloud-secrets
+            - name: NEXTCLOUD_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: NEXTCLOUD_ADMIN_PASSWORD
+                  name: nextcloud-secrets
+            - name: NEXTCLOUD_TRUSTED_DOMAINS
+              value: nextcloud.pwn-n-pepper.net
+            - name: NEXTCLOUD_DATA_DIR
+              value: /mnt/data
+            - name: TRUSTED_PROXIES
+              value: 10.0.0.0/16 # CIDR range of the cluster
+            - name: APACHE_DISABLE_REWRITE_IP
+              value: "1"
+            - name: OVERWRITEHOST
+              value: nextcloud.pwn-n-pepper.net
+            - name: OVERWRITEPROTOCOL
+              value: http
+            - name: OVERWRITECLIURL
+              value: nextcloud.pwn-n-pepper.net
+            - name: OVERWRITEWEBROOT
+              value: "/"
+            - name: PHP_MEMORY_LIMIT
+              value: 4G
+            - name: PHP_UPLOAD_LIMIT
+              value: 1G
+            - name: TZ
+              value: Europe/Amsterdam
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: nextcloud-storage
+              readOnly: false
+            - mountPath: /mnt/data
+              name: nextcloud-storage-data
+              readOnly: false
+      volumes:
+        - name: nextcloud-storage
+          persistentVolumeClaim:
+            claimName: nextcloud-pvc
+        - name: nextcloud-storage-data
+          persistentVolumeClaim:
+            claimName: nextcloud-pvc-data
