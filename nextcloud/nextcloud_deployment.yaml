@@ -76,7 +76,7 @@ spec:
             - name: OVERWRITEHOST
               value: nextcloud.pwn-n-pepper.net
             - name: OVERWRITEPROTOCOL
-              value: http
+              value: https
             - name: OVERWRITECLIURL
               value: nextcloud.pwn-n-pepper.net
             - name: OVERWRITEWEBROOT
