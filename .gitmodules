@@ -1,0 +1,3 @@
+[submodule "hugo/pwn-n-pepper/themes/ananke"]
+	path = hugo/pwn-n-pepper/themes/ananke
+	url = https://github.com/theNewDynamic/gohugo-theme-ananke

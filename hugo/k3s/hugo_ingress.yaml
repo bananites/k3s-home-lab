@@ -1,0 +1,27 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hugo-ingress
+  namespace: hugo
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+
+
+spec:
+  rules:
+    - host: www.pwn-n-pepper.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hugo-svc
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - www.pwn-n-pepper.net
+
