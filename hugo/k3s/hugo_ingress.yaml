@@ -21,7 +21,19 @@ spec:
                 name: hugo-svc
                 port:
                   number: 80
+  rules:
+    - host: pwn-n-pepper.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hugo-svc
+                port:
+                  number: 80
   tls:
     - hosts:
         - www.pwn-n-pepper.net
+        - pwn-n-pepper.net
 
