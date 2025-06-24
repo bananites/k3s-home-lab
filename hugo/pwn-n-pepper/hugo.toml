@@ -1,4 +1,5 @@
 baseURL = 'https://www.pwn-n-pepper.net/'
 languageCode = 'en-us'
 title = 'Pwn-N-Pepper'
-theme = "ananke"
+# new theme rusty typewriter still need to download
+theme = "rusty typewriter"
